@@ -9,16 +9,39 @@
 
 Module.register("MMM-1", {
   defaults: {
-    jsonFile: "/home/pi/MagicMirror/Connections/complimentsA.json"
+    jsonFilePath: '/home/pi/MagicMirror/Connections/complimentsA.json',
+    messageType: 'anytime'
   },
 
   start: function() {
-    // Do any initialization here
+    Log.info('MMM-1 started');
+    this.sendSocketNotification('LOAD_JSON_DATA', {...this.defaults});
   },
-
-  notificationReceived: function(notification, payload, sender) {
-    if (notification === "SHOW_KEYBOARD") {
-      // Show the keyboard and handle input
+  
+  getDom: function() {
+    var button = document.createElement("button");
+    button.innerHTML = "Send";
+    button.addEventListener("click", () => {
+      var message = input.value.trim();
+      if (message.length > 0 {
+        this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+        input.value = '';
+      }
+    });
+    
+    wrapper.appendChild(button);
+    return.wrapper;
+  
+  },
+  
+  socketNotificationReceived: function (notification, payload) {
+    if (notification === 'SAVE_MESSAGE') {
+      const fs = require('fs');
+      fs.readFile("complimentsA.json", (err, data) => {
+        if (err) {
+          return console.error(err);
+        };
+      
     }
   },
 
