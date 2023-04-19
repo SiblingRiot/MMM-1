@@ -19,46 +19,35 @@ Module.register('MMM-1', {
   },
 
   getDom: function() {
-    var self = this;
     var wrapper = document.createElement("div");
     wrapper.innerHTML = "Type a message:";
-
-    var keyboard = document.createElement("div");
-    keyboard.setAttribute("class", "keyboard");
-    keyboard.innerHTML = "<div class='keys'></div>";
-    wrapper.appendChild(keyboard);
-
     var input = document.createElement("input");
     input.setAttribute("type", "text");
     input.setAttribute("id", "messageInput");
     input.setAttribute("maxlength", "50");
     input.setAttribute("placeholder", "Type your message here");
-    keyboard.insertBefore(input, keyboard.firstChild);
-
-    input.addEventListener("focus", function() {
-      self.sendNotification("KEYBOARD_SHOW");
-    });
-
-    input.addEventListener("blur", function() {
-      self.sendNotification("KEYBOARD_HIDE");
-    });
-
-    this.sendNotification("KEYBOARD_REGISTER", {
-      inputElement: input,
-      keyboardElement: keyboard.querySelector(".keys")
-    });
-
-    var button = document.createElement("button");
-    button.innerHTML = "Send";
-    button.addEventListener("click", () => {
-      var message = input.value.trim();
-      if (message.length > 0) {
-        this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
-        input.value = '';
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        var message = input.value.trim();
+        if (message.length > 0) {
+          this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+          input.value = '';
+        }
       }
-    });
-    wrapper.appendChild(button);
-    return wrapper;
+  });
+  wrapper.appendChild(input);
+  var button = document.createElement("button");
+  button.innerHTML = "Send";
+  button.addEventListener("click", () => {
+    var message = input.value.trim();
+    if (message.length > 0) {
+      this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+      input.value = '';
+    }
+  });
+  wrapper.appendChild(button);
+  return wrapper;
+}
   },
 
   socketNotificationReceived: function (notification, payload) {
