@@ -27,7 +27,7 @@ Module.register('MMM-1', {
     input.setAttribute("maxlength", "50");
     input.setAttribute("placeholder", "Type your message here");
     input.addEventListener("keydown", (event) => {
-      if (event.key === "Return") {
+      if (event.key === "Enter") {
         var message = input.value.trim();
         if (message.length > 0) {
           this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
