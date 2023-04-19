@@ -7,19 +7,16 @@
  * MIT Licensed.
  */
 
-Module.register("my-module", {
+Module.register("MMM-1", {
   // Default module config.
   defaults: {
-    jsonFilePath: "/home/pi/MagicMirror/Connections/complimentsA.json",
-    messageType: 'anytime'
+    file: "/home/pi/MagicMirror/Connections/complimentsA.json",
   },
 
   start: function () {
     // Load the MMM-Keyboard module.
     this.keyboard = MM.getModule("MMM-Keyboard");
-    Log.info('MMM-Keyboard started!');
-    this.sendSocketNotification('LOAD_JSON_DATA', {...this.defaults});
-  },
+
     // Add a keyboard input listener.
     this.keyboard.on("input", (value) => {
       // Append the input value to the file.
@@ -38,4 +35,27 @@ Module.register("my-module", {
     wrapper.innerHTML = "My Module";
     return wrapper;
   },
+  
+  socketNotificationReceived: function (notification, payload) {
+    if (notification === 'SAVE_MESSAGE') {
+      // do something with the loaded JSON data if needed
+      const fs = require('fs');
+      fs.readFile("complimentsB.json", (err, data) => {  // READ
+        if (err) {
+          return console.error(err);
+      };
+
+      var data = JSON.parse(data.toString());
+      data.age = "23"; // MODIFY
+      var writeData = fs.writeFile("complimentsB.json", JSON.stringify(data), (err, result) => {  // WRITE
+          if (err) {
+              return console.error(err);
+          } else {
+              console.log(result);
+              console.log("Success");
+          }
+      });
+  });
+      }
+    }
 });
