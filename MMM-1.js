@@ -6,56 +6,70 @@
  * By Sibling Riot
  * MIT Licensed.
  */
-Module.register("MMM-1", {
 
-  // Default module config.
+Module.register('MMM-1', {
   defaults: {
-    jsonFilePath: "/home/pi/MagicMirror/Connections/complimentsA.json"
+    jsonFilePath: '/home/pi/MagicMirror/Connections/complimentsA.json',
+    messageType: 'anytime'
   },
 
-  // Define start function.
-  start: function() {
-    this.sendNotification("SHOW_ALERT", {title: "MMM-1", message: "Ready to write!"});
-    this.jsonFile = require(this.config.jsonFilePath);
+  start: function () {
+    Log.info('MMM-Compliment-Sender started');
+    this.sendSocketNotification('LOAD_JSON_DATA', {...this.defaults});
   },
 
-  // Define getScripts function.
-  getScripts: function() {
-    return ["MMM-Keyboard.js"];
+  getDom: function() {
+    var wrapper = document.createElement("div");
+    wrapper.innerHTML = "Type a message:";
+    var input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.setAttribute("id", "messageInput");
+    input.setAttribute("maxlength", "50");
+    input.setAttribute("placeholder", "Type your message here");
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        var message = input.value.trim();
+        if (message.length > 0) {
+          this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+          input.value = '';
+        }
+      }
+  });
+  wrapper.appendChild(input);
+  var button = document.createElement("button");
+  button.innerHTML = "Send";
+  button.addEventListener("click", () => {
+    var message = input.value.trim();
+    if (message.length > 0) {
+      this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+      input.value = '';
+    }
+  });
+  wrapper.appendChild(button);
+  return wrapper;
+}
   },
 
-  // Define getStyles function.
-  getStyles: function() {
-    return [];
-  },
+  socketNotificationReceived: function (notification, payload) {
+    if (notification === 'SAVE_MESSAGE') {
+      // do something with the loaded JSON data if needed
+      const fs = require('fs');
+      fs.readFile("complimentsA.json", (err, data) => {  // READ
+        if (err) {
+          return console.error(err);
+      };
 
-  // Define notificationReceived function.
-  notificationReceived: function(notification, payload, sender) {
-    if (notification === "KEYPRESS") {
-      if (payload === "ENTER") {
-        // Get the message from the 'MMM-Keyboard' module.
-        var message = this.getTypedMessage();
-        // Save the message to the local JSON file.
-        this.saveMessage(message);
-        // Show an alert to indicate that the message has been saved.
-        this.sendNotification("SHOW_ALERT", {title: "MMM-1", message: "Message saved!"});
+      var data = JSON.parse(data.toString());
+      data.age = "23"; // MODIFY
+      var writeData = fs.writeFile("complimentsA.json", JSON.stringify(data), (err, result) => {  // WRITE
+          if (err) {
+              return console.error(err);
+          } else {
+              console.log(result);
+              console.log("Success");
+          }
+      });
+  });
       }
     }
-  },
-
-  // Define getTypedMessage function.
-  getTypedMessage: function() {
-    var inputField = document.getElementById("MMM-Keyboard-input");
-    return inputField.value.trim();
-  },
-
-  // Define saveMessage function.
-  saveMessage: function(message) {
-    // Append the message to the existing list of messages in the local JSON file.
-    this.jsonFile.anytime.push(message);
-    // Write the updated list of messages to the local JSON file.
-    var fs = require("fs");
-    fs.writeFileSync(this.config.jsonFilePath, JSON.stringify(this.jsonFile));
-  }
-
 });
