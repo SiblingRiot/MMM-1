@@ -14,7 +14,7 @@ Module.register('MMM-1', {
   },
 
   start: function () {
-    Log.info('MMM-Compliment-Sender started');
+    Log.info('MMM-MyKeyboardModule started');
     this.sendSocketNotification('LOAD_JSON_DATA', {...this.defaults});
   },
 
@@ -26,28 +26,20 @@ Module.register('MMM-1', {
     input.setAttribute("id", "messageInput");
     input.setAttribute("maxlength", "50");
     input.setAttribute("placeholder", "Type your message here");
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        var message = input.value.trim();
-        if (message.length > 0) {
-          this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
-          input.value = '';
-        }
+    
+    };
+    wrapper.appendChild(input);
+    var button = document.createElement("button");
+    button.innerHTML = "Send";
+    button.addEventListener("click", () => {
+      var message = input.value.trim();
+      if (message.length > 0) {
+        this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
+        input.value = '';
       }
-  });
-  wrapper.appendChild(input);
-  var button = document.createElement("button");
-  button.innerHTML = "Send";
-  button.addEventListener("click", () => {
-    var message = input.value.trim();
-    if (message.length > 0) {
-      this.sendSocketNotification('SAVE_MESSAGE', { ...this.defaults, type: this.config.messageType, message: message });
-      input.value = '';
-    }
-  });
-  wrapper.appendChild(button);
-  return wrapper;
-}
+    });
+    wrapper.appendChild(button);
+    return wrapper;
   },
 
   socketNotificationReceived: function (notification, payload) {
