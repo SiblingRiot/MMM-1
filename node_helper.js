@@ -10,7 +10,7 @@ const fs = require('fs');
 
 module.exports = NodeHelper.create({
   start: function () {
-    console.log('MMM-MyKeyboardModule helper started...');
+    console.log('MMM-1 helper started...');
   },
 
   socketNotificationReceived: function (notification, payload) {
